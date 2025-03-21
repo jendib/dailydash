@@ -1,7 +1,9 @@
 [
   {
     "interfaces": [
-      "io.github.rukins.gkeepapi.client.GKeepClient"
+      "io.github.rukins.gkeepapi.client.GKeepClient",
+      "io.github.rukins.gkeepapi.client.GKeepUploadMediaClient",
+      "io.github.rukins.gkeepapi.client.GKeepMediaClient"
     ]
   }
 ]
