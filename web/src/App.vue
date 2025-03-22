@@ -79,7 +79,6 @@
           
           <div class="col-span-4 bg-gray-800 rounded-lg shadow-lg p-4">
             <h2 class="text-lg text-center font-semibold mb-6"><CalendarIcon class="h-6 w-6 inline"/> Calendar</h2>
-            <p class="text-sm"></p>
           </div>
         </div>
       </section>
