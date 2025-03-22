@@ -7,5 +7,55 @@
     "allPublicMethods" : true,
     "allDeclaredFields" : true,
     "allPublicFields" : true
+  },
+  {
+    "name" : "io.github.rukins.gpsoauth.model.AccessToken",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true,
+    "unsafeAllocated": true
+  },
+  {
+    "name" : "io.github.rukins.gpsoauth.model.AccessTokenRequestParams",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true,
+    "unsafeAllocated": true
+  },
+  {
+    "name" : "io.github.rukins.gpsoauth.model.AuthErrorObject",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true,
+    "unsafeAllocated": true
+  },
+  {
+    "name" : "io.github.rukins.gpsoauth.model.MasterToken",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true,
+    "unsafeAllocated": true
+  },
+  {
+    "name" : "io.github.rukins.gpsoauth.model.MasterTokenRequestParams",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true,
+    "unsafeAllocated": true
   }
 ]
