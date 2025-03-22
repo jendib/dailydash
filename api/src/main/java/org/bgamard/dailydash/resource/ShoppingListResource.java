@@ -1,24 +1,18 @@
 package org.bgamard.dailydash.resource;
 
-import io.github.rukins.gkeepapi.client.GKeepClientWrapper;
-import io.github.rukins.gkeepapi.model.gkeep.NodeRequest;
-import io.github.rukins.gkeepapi.model.gkeep.NodeResponse;
-import io.github.rukins.gkeepapi.model.gkeep.PlatformType;
-import io.github.rukins.gkeepapi.model.gkeep.Timestamps;
-import io.github.rukins.gkeepapi.model.gkeep.node.nodeobject.ListItemNode;
-import io.github.rukins.gkeepapi.model.gkeep.requestheader.ClientVersion;
-import io.github.rukins.gkeepapi.model.gkeep.requestheader.RequestHeader;
-import io.github.rukins.gkeepapi.model.gkeep.requestheader.capability.Capability;
+import io.github.rukins.gpsoauth.Auth;
+import io.github.rukins.gpsoauth.model.AccessTokenRequestParams;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.bgamard.dailydash.client.GoogleKeepClient;
 import org.bgamard.dailydash.config.Config;
+import org.bgamard.dailydash.model.ChangeRequest;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/shopping-list")
@@ -27,30 +21,32 @@ import java.util.List;
 public class ShoppingListResource {
     @Inject
     Config config;
+
+    @Inject
+    @RestClient
+    GoogleKeepClient googleKeepClient;
     
     @GET
     public List<String> get() throws Exception {
-        GKeepClientWrapper client = new GKeepClientWrapper(config.googlekeep().masterToken());
+        AccessTokenRequestParams accessTokenRequestParams = AccessTokenRequestParams
+                .withDefaultValues()
+                .masterToken(config.googlekeep().masterToken())
+                .app("com.google.android.keep")
+                .scopes("oauth2:https://www.googleapis.com/auth/memento https://www.googleapis.com/auth/reminders")
+                .build();
 
-        NodeResponse fullData = client.changes(NodeRequest.builder()
-                .clientTimestamp(LocalDateTime.now(Timestamps.DEFAULT_ZONE_ID))
-                .nodes(new ArrayList<>())
-                .requestHeader(RequestHeader.builder()
-                        .capabilities(Capability.DEFAULT_CAPABILITIES)
-                        .clientLocale(RequestHeader.DEFAULT_LOCALE)
-                        .clientPlatform(PlatformType.DEFAULT_PLATFORM_TYPE)
-                        .clientSessionId(config.googlekeep().sessionId())
-                        .clientVersion(ClientVersion.DEFAULT_CLIENT_VERSION)
-                        .noteSupportedModelFeatures(RequestHeader.DEFAULT_NOTE_SUPPORTED_MODEL_FEATURES)
-                        .build())
-                .build());
+        String accessToken = new Auth().getAccessToken(accessTokenRequestParams).getAccessToken();
 
-        return fullData.getNodes()
+        return googleKeepClient.changes(
+                "OAuth " + accessToken,
+                "x-gkeepapi (https://github.com/rukins/gkeepapi-java)",
+                new ChangeRequest(new ChangeRequest.RequestHeader(config.googlekeep().sessionId())))
+                .nodes
                 .stream()
-                .filter(node -> node.getParentId().equals(config.googlekeep().nodeId()))
-                .map(ListItemNode.class::cast)
-                .filter(node -> !node.getChecked())
-                .map(ListItemNode::getText)
+                .filter(node -> node.type.equals("LIST_ITEM")
+                        && node.parentId.equals(config.googlekeep().nodeId())
+                        && !node.checked)
+                .map(node -> node.text)
                 .toList();
     }
 }

@@ -45,8 +45,8 @@
 
     <dependency>
       <groupId>io.github.rukins</groupId>
-      <artifactId>gkeepapi</artifactId>
-      <version>1.2.6</version>
+      <artifactId>gpsoauth</artifactId>
+      <version>1.0.2</version>
     </dependency>
     <dependency>
       <groupId>org.mnode.ical4j</groupId>

@@ -4,19 +4,21 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import org.bgamard.dailydash.model.State;
+import org.bgamard.dailydash.model.ChangeRequest;
+import org.bgamard.dailydash.model.ChangeResponse;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-@RegisterRestClient(configKey = "homeassistant")
+@RegisterRestClient(configKey = "googlekeep")
 @ApplicationScoped
-@Path("/api")
+@Path("/notes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface HomeAssistantClient {
-    @GET
-    @Path("states/{id}")
-    State getState(
+public interface GoogleKeepClient {
+    @POST
+    @Path("v1/changes")
+    ChangeResponse changes(
             @HeaderParam(HttpHeaders.AUTHORIZATION) String authorization,
-            @PathParam("id") String id
+            @HeaderParam(HttpHeaders.USER_AGENT) String userAgent,
+            ChangeRequest request
     );
 }
