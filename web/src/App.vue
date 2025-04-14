@@ -1,9 +1,9 @@
 <template>
-  <div class="flex min-h-screen text-white">
-    <div class="flex-1 bg-gray-900">
-      <section class="p-6">
-        <div class="grid grid-cols-6 gap-6">
-          <div class="bg-gray-800 rounded-lg shadow-lg p-4">
+  <div class="h-screen text-white">
+    <div class="h-screen">
+      <section class="flex flex-col h-full p-6">
+        <div class="grid grid-cols-6 grid-rows-1 gap-6 grow overflow-auto">
+          <div class="bg-gray-800 rounded-lg shadow-lg p-4 row-span-full">
             <h2 class="text-lg text-center font-semibold mb-6"><ShoppingCartIcon class="h-6 w-6 inline"/> Shopping List</h2>
             <ul>
               <li
@@ -38,7 +38,7 @@
                 <span class="text-lg">{{ homeAssistant.tempoToday }}</span>
               </div>
               <div class="text-center">
-                <p class="font-bold text-gray-300 mb-1">Tempo tomorrow</p>
+                <p class="font-bold text-gray-300 mb-1">Tempo tmrrw</p>
                 <span class="text-lg">{{ homeAssistant.tempoTomorrow }}</span>
               </div>
 
@@ -77,8 +77,46 @@
             </div>
           </div>
           
-          <div class="col-span-4 bg-gray-800 rounded-lg shadow-lg p-4">
+          <div class="col-span-4 bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col">
             <h2 class="text-lg text-center font-semibold mb-6"><CalendarIcon class="h-6 w-6 inline"/> Calendar</h2>
+
+            <div class="grid grid-cols-7 grow grid-rows-1 gap-4 row-span-full">
+              <div class="bg-gray-900 rounded-lg">
+                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
+                  <p class="font-bold text-gray-300 mb-1">Monday</p>
+                </div>
+              </div>
+              <div class="bg-gray-900 rounded-lg">
+                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
+                  <p class="font-bold text-gray-300 mb-1">Tuesday</p>
+                </div>
+              </div>
+              <div class="bg-gray-900 rounded-lg">
+                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
+                  <p class="font-bold text-gray-300 mb-1">Wednesday</p>
+                </div>
+              </div>
+              <div class="bg-gray-900 rounded-lg">
+                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
+                  <p class="font-bold text-gray-300 mb-1">Thursday</p>
+                </div>
+              </div>
+              <div class="bg-gray-900 rounded-lg">
+                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
+                  <p class="font-bold text-gray-300 mb-1">Friday</p>
+                </div>
+              </div>
+              <div class="bg-gray-900 rounded-lg">
+                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
+                  <p class="font-bold text-gray-300 mb-1">Saturday</p>
+                </div>
+              </div>
+              <div class="bg-gray-900 rounded-lg">
+                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
+                  <p class="font-bold text-gray-300 mb-1">Sunday</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
