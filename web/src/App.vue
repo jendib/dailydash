@@ -88,6 +88,47 @@
               </li>
             </ul>
           </div>
+          
+          <div class="col-span-3 bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col" v-if="photos">
+            <h2 class="text-lg text-center font-semibold mb-6"><CalendarIcon class="h-6 w-6 inline"/> Photos</h2>
+
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[0] + '/preview'" />
+                </div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[3] + '/preview'" />
+                </div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[6] + '/preview'" />
+                </div>
+              </div>
+              <div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[1] + '/preview'" />
+                </div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[4] + '/preview'" />
+                </div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[7] + '/preview'" />
+                </div>
+              </div>
+              <div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[2] + '/preview'" />
+                </div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[5] + '/preview'" />
+                </div>
+                <div>
+                  <img class="mb-4 h-auto max-w-full rounded-lg" :src="$apiUrl + '/photos/' + photos[8] + '/preview'" />
+                </div>
+              </div>
+            </div>
+            
+          </div>
         </div>
       </section>
     </div>
@@ -103,6 +144,7 @@ const homeAssistant = ref(null)
 const shoppingList = ref([])
 const calendar = ref(null)
 const weather = ref(null)
+const photos = ref(null)
 
 const load = async () => {
   let response = await axios.get('shopping-list')
@@ -116,6 +158,9 @@ const load = async () => {
   
   response = await axios.get('https://api.open-meteo.com/v1/forecast?latitude=45.7485&longitude=4.8467&daily=weather_code,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,temperature_80m&models=best_match&current=precipitation,weather_code,temperature_2m,wind_speed_10m,is_day&minutely_15=precipitation&timezone=Europe%2FBerlin&forecast_minutely_15=24')
   weather.value = response.data
+  
+  response = await axios.get('photos/latest')
+  photos.value = response.data
 }
 
 onBeforeMount(async () => {

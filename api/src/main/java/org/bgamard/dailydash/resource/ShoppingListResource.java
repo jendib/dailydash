@@ -10,7 +10,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.bgamard.dailydash.client.GoogleKeepClient;
 import org.bgamard.dailydash.config.Config;
-import org.bgamard.dailydash.model.ChangeRequest;
+import org.bgamard.dailydash.model.googlekeep.ChangeRequest;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.util.List;

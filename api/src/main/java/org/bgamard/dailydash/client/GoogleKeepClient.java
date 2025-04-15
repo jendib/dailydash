@@ -4,8 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import org.bgamard.dailydash.model.ChangeRequest;
-import org.bgamard.dailydash.model.ChangeResponse;
+import org.bgamard.dailydash.model.googlekeep.ChangeRequest;
+import org.bgamard.dailydash.model.googlekeep.ChangeResponse;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @RegisterRestClient(configKey = "googlekeep")

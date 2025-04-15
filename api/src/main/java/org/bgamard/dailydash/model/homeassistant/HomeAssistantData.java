@@ -1,4 +1,4 @@
-package org.bgamard.dailydash.model;
+package org.bgamard.dailydash.model.homeassistant;
 
 public class HomeAssistantData {
     public int co2Level;

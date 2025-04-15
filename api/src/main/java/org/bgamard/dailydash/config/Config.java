@@ -7,4 +7,5 @@ public interface Config {
     GoogleKeepConfig googlekeep();
     CalendarConfig calendar();
     HomeAssistantConfig homeassistant();
+    ImmichConfig immich();
 }

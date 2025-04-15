@@ -8,7 +8,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.bgamard.dailydash.client.HomeAssistantClient;
 import org.bgamard.dailydash.config.Config;
-import org.bgamard.dailydash.model.HomeAssistantData;
+import org.bgamard.dailydash.model.homeassistant.HomeAssistantData;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @Path("/home-assistant")

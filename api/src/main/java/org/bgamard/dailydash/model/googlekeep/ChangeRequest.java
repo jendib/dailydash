@@ -1,4 +1,4 @@
-package org.bgamard.dailydash.model;
+package org.bgamard.dailydash.model.googlekeep;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
