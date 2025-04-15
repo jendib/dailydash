@@ -33,6 +33,8 @@ public class CalendarResource {
                     .filter(VEvent.class::isInstance)
                     .map(VEvent.class::cast)
                     .map(Event::fromVEvent)
+                    .filter(Event::isFuture)
+                    .sorted()
                     .toList();
         }
     }

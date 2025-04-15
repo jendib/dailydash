@@ -16,7 +16,7 @@
           </div>
           
           <div class="bg-gray-800 rounded-lg shadow-lg p-4" v-if="homeAssistant && weather">
-            <h2 class="text-lg text-center font-semibold mb-6"><SunIcon class="h-6 w-6 inline"/> Today</h2>
+            <h2 class="text-lg text-center font-semibold mb-6"><SunIcon class="h-6 w-6 inline"/> Today {{new Date().toISOString().split('T')[0]}}</h2>
 
             <div class="grid grid-cols-2 gap-4">
               <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
@@ -77,46 +77,16 @@
             </div>
           </div>
           
-          <div class="col-span-4 bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col">
-            <h2 class="text-lg text-center font-semibold mb-6"><CalendarIcon class="h-6 w-6 inline"/> Calendar</h2>
+          <div class="bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col">
+            <h2 class="text-lg text-center font-semibold mb-6"><CalendarIcon class="h-6 w-6 inline"/> Next events</h2>
 
-            <div class="grid grid-cols-7 grow grid-rows-1 gap-4 row-span-full">
-              <div class="bg-gray-900 rounded-lg">
-                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
-                  <p class="font-bold text-gray-300 mb-1">Monday</p>
-                </div>
-              </div>
-              <div class="bg-gray-900 rounded-lg">
-                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
-                  <p class="font-bold text-gray-300 mb-1">Tuesday</p>
-                </div>
-              </div>
-              <div class="bg-gray-900 rounded-lg">
-                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
-                  <p class="font-bold text-gray-300 mb-1">Wednesday</p>
-                </div>
-              </div>
-              <div class="bg-gray-900 rounded-lg">
-                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
-                  <p class="font-bold text-gray-300 mb-1">Thursday</p>
-                </div>
-              </div>
-              <div class="bg-gray-900 rounded-lg">
-                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
-                  <p class="font-bold text-gray-300 mb-1">Friday</p>
-                </div>
-              </div>
-              <div class="bg-gray-900 rounded-lg">
-                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
-                  <p class="font-bold text-gray-300 mb-1">Saturday</p>
-                </div>
-              </div>
-              <div class="bg-gray-900 rounded-lg">
-                <div class="col-span-2 text-center bg-gray-700 rounded-lg p-2">
-                  <p class="font-bold text-gray-300 mb-1">Sunday</p>
-                </div>
-              </div>
-            </div>
+            <ul>
+              <li v-for="event in calendar" class="bg-gray-700 rounded-lg p-2 mb-2">
+                <p class="font-bold">{{event.title}}</p>
+                <p>{{event.description}}</p>
+                <p>{{event.startDate}}<span v-if="event.startDate !== event.endDate"> to {{event.endDate}}</span></p>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
