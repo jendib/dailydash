@@ -1,7 +1,7 @@
-﻿<template>
+<template>
   <main class="dashboard">
     <header class="masthead">
-      <div><p class="eyebrow">A little closer to home</p><h1>{{ greeting }}<span>.</span></h1></div>
+      <div><h1>{{ greeting }}<span>.</span></h1></div>
       <div class="clock"><time>{{ clock }}</time><p>{{ today }}</p></div>
     </header>
 
@@ -12,7 +12,6 @@
           <div class="weather-hero"><div><p class="temperature">{{ number(currentWeather?.temperature_2m) }}<span>°</span></p><p class="weather-description">{{ condition.label }}</p></div><WeatherIcon :condition="condition" class="weather-icon" /></div>
           <div class="weather-details"><span>Wind <strong>{{ number(currentWeather?.wind_speed_10m) }} <small>km/h</small></strong></span><span>Rain <strong>{{ number(currentWeather?.precipitation, 1) }} <small>mm</small></strong></span><span>Balcony <strong>{{ number(homeAssistant?.outdoorTemperature, 1) }}<small> °C</small></strong></span></div>
           <p v-if="errors.weather" class="status">{{ errors.weather }}</p>
-          <a class="weather-credit" href="https://open-meteo.com/" target="_blank" rel="noreferrer">Weather by Open-Meteo</a>
         </section>
 
         <section class="panel home-panel" aria-labelledby="home-title">
@@ -47,7 +46,6 @@
         <p v-if="errors.photos" class="status">{{ errors.photos }}</p>
       </section>
     </div>
-    <footer><span class="footer-brand">DailyDash <span> / </span> Home, at a glance.</span><span>{{ refreshing ? 'Refreshing…' : lastRefresh ? `Last checked ${refreshTime}` : 'Connecting to home…' }}<span v-if="hasErrors"> · Some services unavailable</span></span></footer>
   </main>
 </template>
 
@@ -68,7 +66,6 @@ const photos = ref([])
 const errors = reactive({})
 const loaded = reactive({})
 const refreshing = ref(false)
-const lastRefresh = ref(null)
 const currentWeather = computed(() => weather.value?.current)
 const condition = computed(() => weatherCondition(currentWeather.value?.weather_code, currentWeather.value?.is_day))
 const clock = computed(() => now.value.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: zone }))
@@ -77,8 +74,6 @@ const greeting = computed(() => {
   const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hourCycle: 'h23', timeZone: zone }).format(now.value))
   return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 })
-const refreshTime = computed(() => lastRefresh.value?.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: zone }))
-const hasErrors = computed(() => Object.values(errors).some(Boolean))
 const co2Class = computed(() => homeAssistant.value?.co2Level >= 1500 ? 'air-high' : homeAssistant.value?.co2Level >= 1000 ? 'air-medium' : '')
 const number = (value, digits = 0) => value == null || !Number.isFinite(Number(value)) ? '—' : Number(value).toFixed(digits)
 const tempoClass = value => ({ bleu: 'tempo-blue', blanc: 'tempo-white', rouge: 'tempo-red' })[value?.toLowerCase()] || ''
@@ -107,7 +102,6 @@ async function load() {
       if (!axios.isCancel(error)) errors[key] = loaded[key] ? 'Connection interrupted · showing last available data' : 'Temporarily unavailable · retrying automatically'
     }
   }))
-  lastRefresh.value = new Date()
   refreshing.value = false
 }
 onMounted(() => {
@@ -119,27 +113,27 @@ onUnmounted(() => { clearInterval(refreshTimer); clearInterval(clockTimer); cont
 </script>
 
 <style scoped>
-.dashboard { min-height: 100dvh; padding: clamp(20px, 2.4vw, 48px); color: #edf1f5; background: radial-gradient(ellipse at 0 0, #203138 0, transparent 45%), #10171d; font-family: 'Segoe UI', system-ui, sans-serif; }
-.masthead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.dashboard { min-height: 100dvh; padding: clamp(14px, 1.5vw, 28px); color: #edf1f5; background: radial-gradient(ellipse at 0 0, #203138 0, transparent 45%), #10171d; font-family: 'Segoe UI', system-ui, sans-serif; }
+.masthead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
 .eyebrow { color: #a8bdbe; text-transform: uppercase; letter-spacing: .2em; font-size: 11px; font-weight: 600; margin: 0 0 8px; }
 h1 { font-size: clamp(28px, 2.5vw, 46px); font-weight: 500; letter-spacing: -.045em; line-height: 1.15; } h1 span { color: #b5d8b6; }
 .clock { text-align: right; } .clock time { font-size: clamp(30px, 3vw, 52px); font-weight: 300; letter-spacing: -.04em; font-variant-numeric: tabular-nums; line-height: 1; } .clock p { color: #a5b2bd; margin-top: 9px; font-size: 14px; }
-.dashboard-grid { display: grid; grid-template-columns: minmax(270px, 1fr) minmax(290px, 1.12fr) minmax(400px, 1.8fr); gap: 20px; align-items: start; }
-.column { display: grid; gap: 20px; } .panel { background: #1b252e; border: 1px solid #ffffff0c; border-radius: 22px; padding: 24px; overflow: hidden; }
-.panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; } h2 { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; letter-spacing: -.02em; } h2 svg { width: 20px; height: 20px; color: #acc4bd; flex-shrink: 0; }
+.dashboard-grid { display: grid; grid-template-columns: minmax(270px, 1fr) minmax(290px, 1.12fr) minmax(400px, 1.8fr); gap: 16px; align-items: start; }
+.column { display: grid; gap: 16px; } .panel { background: #1b252e; border: 1px solid #ffffff0c; border-radius: 22px; padding: 18px; overflow: hidden; }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; } h2 { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; letter-spacing: -.02em; } h2 svg { width: 20px; height: 20px; color: #acc4bd; flex-shrink: 0; }
 .tag { display: inline-flex; align-items: center; gap: 5px; color: #aebec8; font-size: 11px; white-space: nowrap; } .tag svg { width: 14px; height: 14px; }
 .weather-panel { background: linear-gradient(135deg, #293d47, #20303b); } .weather-hero { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; } .temperature { font-size: clamp(56px, 4.4vw, 84px); letter-spacing: -.07em; font-weight: 300; line-height: 1; } .temperature span { color: #b2c6cd; } .weather-description { color: #ccd9df; margin-top: 10px; font-size: 16px; } .weather-icon { width: 92px; height: 92px; flex-shrink: 0; }
-.weather-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding-top: 20px; border-top: 1px solid #ffffff12; } .weather-details > span { font-size: 11px; color: #a6bac5; } .weather-details strong { display: block; color: #eef3f7; font-size: 17px; font-weight: 500; margin-top: 6px; white-space: nowrap; } small { font-size: 11px; color: #9eb0bc; font-weight: 400; letter-spacing: 0; } .weather-credit { display: block; color: #99afba; font-size: 10px; margin-top: 18px; text-decoration: none; }
+.weather-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding-top: 20px; border-top: 1px solid #ffffff12; } .weather-details > span { font-size: 11px; color: #a6bac5; } .weather-details strong { display: block; color: #eef3f7; font-size: 17px; font-weight: 500; margin-top: 6px; white-space: nowrap; } small { font-size: 11px; color: #9eb0bc; font-weight: 400; letter-spacing: 0; }
 .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #aad5ab; box-shadow: 0 0 0 4px #aad5ab10; } .live-dot.muted { background: #a7adb3; }
 .home-readings { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } .label { color: #9eafbb; font-size: 11px; } .reading { font-size: 30px; font-weight: 400; letter-spacing: -.04em; margin-top: 7px; white-space: nowrap; } .reading.air-medium { color: #efcc87; } .reading.air-high { color: #ffa292; }
 .tempo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; border-top: 1px solid #ffffff0d; margin-top: 22px; padding-top: 18px; } .tempo-row > div { display: flex; flex-direction: column; gap: 9px; } .tempo { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; } .tempo::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #81929e; } .tempo-blue::before { background: #83b7ff; } .tempo-white::before { background: #eff2f4; } .tempo-red::before { background: #f7938d; }
 .count { background: #ffffff09; border-radius: 8px; padding: 3px 8px; font-size: 11px; color: #b9c9c1; } .shopping-list { list-style: none; display: grid; gap: 13px; } .shopping-list li { display: flex; align-items: start; gap: 12px; font-size: 15px; color: #dbe3e8; line-height: 1.4; overflow-wrap: anywhere; } .check-circle { width: 13px; height: 13px; border: 1px solid #61756f; border-radius: 4px; margin-top: 4px; flex-shrink: 0; }
 .agenda-panel { min-height: 390px; } .agenda-list { display: grid; } .event { display: flex; align-items: start; gap: 16px; padding: 20px 0; border-bottom: 1px solid #ffffff0b; } .event:first-child { padding-top: 0; } .event:last-child { border: 0; padding-bottom: 0; } .date-tile { background: #ffffff06; border: 1px solid #ffffff09; border-radius: 12px; width: 51px; min-width: 51px; text-align: center; padding: 8px 4px; } .date-tile span { display: block; font-size: 10px; color: #a8c4b8; text-transform: uppercase; letter-spacing: .1em; } .date-tile strong { font-size: 25px; font-weight: 400; line-height: 1.3; } .event-content { min-width: 0; } .event-date { font-size: 11px; color: #aec8ba; margin: 1px 0 7px; line-height: 1.5; } h3 { font-size: 17px; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; } .event-description { color: #a7b5c0; font-size: 13px; line-height: 1.6; margin-top: 7px; white-space: pre-line; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; } .event-location { display: flex; align-items: center; gap: 4px; color: #8fa2b0; font-size: 11px; margin-top: 9px; overflow-wrap: anywhere; } .event-location svg { width: 13px; height: 13px; flex-shrink: 0; }
 .photos-panel { background: #19232a; } .photos-panel h2 { font-size: 27px; font-weight: 400; letter-spacing: -.04em; } .photo-heading-icon { width: 24px; height: 24px; color: #a0b4af; } .photo-wall { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; } .photo-wall figure { aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #26343c; margin: 0; } .photo-wall figure.featured { grid-column: span 2; grid-row: span 2; } .photo-wall img { width: 100%; height: 100%; object-fit: cover; } .photo-empty { min-height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; color: #9aafb7; text-align: center; font-size: 14px; } .photo-empty svg { width: 48px; height: 48px; opacity: .4; }
-.empty { color: #9bafb9; font-size: 14px; line-height: 1.6; } .status { color: #e6bc86; font-size: 11px; line-height: 1.5; margin-top: 16px; } footer { display: flex; justify-content: space-between; gap: 20px; color: #83959e; font-size: 11px; padding-top: 22px; } .footer-brand { color: #9badb4; } .footer-brand span { margin: 0 10px; color: #59716d; }
+.empty { color: #9bafb9; font-size: 14px; line-height: 1.6; } .status { color: #e6bc86; font-size: 11px; line-height: 1.5; margin-top: 16px; }
 @media (min-width: 1100px) {
   .dashboard { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-  .masthead, footer { flex-shrink: 0; }
+  .masthead { flex-shrink: 0; }
   .dashboard-grid { flex: 1; min-height: 0; align-items: stretch; }
   .column { grid-template-rows: auto auto minmax(0, 1fr); min-height: 0; }
   .agenda-panel { min-height: 0; overflow-y: auto; }
@@ -152,23 +146,22 @@ h1 { font-size: clamp(28px, 2.5vw, 46px); font-weight: 500; letter-spacing: -.04
   .agenda-panel, .shopping-list { scrollbar-width: thin; scrollbar-color: #42535c transparent; }
 }
 @media (min-width: 1100px) and (max-height: 850px) {
-  .dashboard { padding: 22px 28px; }
-  .masthead { margin-bottom: 20px; }
-  .panel { padding: 16px; border-radius: 18px; }
-  .column, .dashboard-grid { gap: 14px; }
+  .dashboard { padding: 14px 18px; }
+  .masthead { margin-bottom: 14px; }
+  .panel { padding: 14px; border-radius: 18px; }
+  .column, .dashboard-grid { gap: 12px; }
   .panel-heading { margin-bottom: 10px; }
   .weather-hero { margin-bottom: 10px; }
   .temperature { font-size: 48px; }
   .weather-description { margin-top: 4px; }
   .weather-icon { width: 56px; height: 56px; }
   .weather-details { padding-top: 8px; }
-  .weather-credit { margin-top: 8px; }
   .tempo-row { margin-top: 8px; padding-top: 8px; }
   .tempo-row > div { gap: 5px; }
   .reading { font-size: 24px; margin-top: 3px; }
-  footer { padding-top: 14px; }
+
 }
-@media (min-width: 1800px) { .dashboard-grid { gap: 26px; } .column { gap: 26px; } .panel { padding: 30px; } h2 { font-size: 19px; } .label, .event-date { font-size: 13px; } h3 { font-size: 20px; } .event-description, .shopping-list li { font-size: 16px; } }
+@media (min-width: 1800px) { .dashboard-grid { gap: 18px; } .column { gap: 18px; } .panel { padding: 22px; } h2 { font-size: 19px; } .label, .event-date { font-size: 13px; } h3 { font-size: 20px; } .event-description, .shopping-list li { font-size: 16px; } }
 @media (max-width: 1099px) { .dashboard-grid { grid-template-columns: 1fr 1.2fr; } .photos-panel { grid-column: 1 / -1; } .photo-wall { grid-template-columns: repeat(5, 1fr); } }
-@media (max-width: 650px) { .dashboard { padding: 20px 16px; } .masthead { align-items: start; gap: 12px; } .clock p { font-size: 11px; max-width: 130px; } .eyebrow { font-size: 9px; } .dashboard-grid { grid-template-columns: minmax(0, 1fr); } .panel { padding: 22px; } .photo-wall { grid-template-columns: repeat(3, 1fr); } footer { flex-direction: column; gap: 8px; } }
+@media (max-width: 650px) { .dashboard { padding: 14px 12px; } .masthead { align-items: start; gap: 12px; } .clock p { font-size: 11px; max-width: 130px; } .eyebrow { font-size: 9px; } .dashboard-grid { grid-template-columns: minmax(0, 1fr); } .panel { padding: 16px; } .photo-wall { grid-template-columns: repeat(3, 1fr); } }
 </style>
