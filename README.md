@@ -125,12 +125,6 @@ Compose uses `pull_policy: always`, restarts both services automatically, and ex
 
 ## Notes for future agents
 
-- Preserve the kiosk use case: prioritize legibility, stable layout, and unattended recovery. The current screen uses a six-column grid with three columns allocated to photos.
-- `App.vue` loads shopping list, calendar, Home Assistant, weather, and photo IDs sequentially. After a successful initial load, it installs a ten-minute refresh timer. There is no error handling: a failed request stops that load cycle, and failure during the initial load prevents the timer from being installed. Consider this when diagnosing missing panels or stale data.
-- Home Assistant entity IDs are hardcoded in `HomeAssistantResource.java`. Weather coordinates and requested fields are hardcoded in `App.vue`. Inspect those locations before assuming configuration controls them.
-- The photo template assumes at least nine results. Empty or short photo lists are not currently handled.
-- Calendar conversion treats all-day iCalendar end dates as exclusive and subtracts one day for display. Filtering/sorting currently handles `LocalDate` and `OffsetDateTime`; preserve these semantics when changing date handling.
 - There is no application authentication or authorization, and API CORS allows all origins. The dashboard exposes data and should be deployed on a trusted network or behind appropriate access controls.
-- REST client request/response logging is enabled in `application.properties`. Avoid sharing raw logs without checking for private data and credentials.
 - This is a public repository. Keep tokens, private calendar URLs, personal photos, and local HTTP request histories out of commits. `.idea/` and `.env` are ignored; ignored IDE files can still contain credentials and are not project documentation.
 - Keep changes scoped to the relevant module. Check both frontend consumers and backend response models when changing an API contract, and state which build/runtime checks were actually performed.
