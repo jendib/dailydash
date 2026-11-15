@@ -1,6 +1,6 @@
 # dailydash-web
 
-This template should help get you started developing with Vue 3 in Vite.
+DailyDash uses Vue 3, Vite 8, and Tailwind CSS 4 through `@tailwindcss/vite`. Use Node.js 24 with npm. See the [root README](../README.md) for integration configuration and deployment details.
 
 ## Recommended IDE Setup
 
@@ -13,7 +13,7 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 ## Project Setup
 
 ```sh
-npm install
+npm ci
 ```
 
 ### Compile and Hot-Reload for Development

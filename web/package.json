@@ -5,19 +5,23 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test src/dashboard.test.js"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
-    "axios": "^1.8.4",
-    "vue": "^3.5.13"
+    "axios": "^1.21.1",
+    "vue": "^3.5.45"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.3",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.17",
-    "vite": "^6.2.2"
-  }
+    "@tailwindcss/vite": "^4.3.5",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8"
+  },
+  "engines": {
+    "node": "^24.0.0"
+  },
+  "type": "module"
 }

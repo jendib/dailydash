@@ -22,7 +22,7 @@ The main usage is passive viewing from a distance on an always-on screen. Keep c
 | `docker-compose.yml` | Deployment using published API and web images |
 | `.github/workflows/build.yml` | Builds and publishes both images on pushes to `main` |
 
-The backend uses Java 25, Quarkus 3.40.1.2, Maven, Quarkus REST/Jackson, and REST clients. The frontend uses Vue 3, Vite 6, Tailwind CSS 3, Axios, and Heroicons. There is no application database or persistence layer.
+The backend uses Java 25, Quarkus 3.40.1.2, Maven, Quarkus REST/Jackson, and REST clients. The frontend uses Vue 3, Vite 8, Tailwind CSS 4 (via its Vite plugin), Axios, and Heroicons. There is no application database or persistence layer.
 
 The browser calls the API for private integrations and calls Open-Meteo directly for weather. Integration credentials stay on the API side. Photo previews pass through the API so the browser does not need the Immich key.
 
@@ -41,7 +41,7 @@ All API paths below are relative to the API root.
 
 ## Local development
 
-Use JDK 25 and the checked-in Maven wrapper for the API. The wrapper downloads Maven 3.9.11. For frontend development, install Node.js/npm compatible with the versions in `web/package.json`; the existing web Docker build uses Node 18.
+Use JDK 25 and the checked-in Maven wrapper for the API. The wrapper downloads Maven 3.9.11. For frontend development and Docker builds, use Node.js 24 with npm. Tailwind CSS 4 requires a modern kiosk browser (Safari 16.4+, Chrome 111+, or Firefox 128+).
 
 Configure the integration environment variables below before starting the API. From `api/`:
 
@@ -108,7 +108,7 @@ bash ./mvnw -B clean verify -Pnative -Dquarkus.native.container-build=true
 
 The JVM package runs with `java -jar target/quarkus-app/quarkus-run.jar` from `api/`. See [the API README](api/README.md) for additional packaging commands.
 
-There are currently no API test sources or frontend test/lint scripts. A successful JVM build checks compilation and Quarkus augmentation, but does not verify live integrations, the kiosk layout, or native execution. For UI work, inspect the dashboard at the kiosk's actual screen size. For integration work, verify the relevant endpoint with configured services. Changes involving reflection or integration models should also be checked with a native build.
+Run `npm test` from `web/` to check calendar date formatting and WMO weather mappings. There are currently no API test sources or frontend lint scripts. A successful JVM build checks compilation and Quarkus augmentation, but does not verify live integrations, the kiosk layout, or native execution. For UI work, inspect the dashboard at the kiosk's actual screen size. For integration work, verify the relevant endpoint with configured services. Changes involving reflection or integration models should also be checked with a native build.
 
 On pushes to `main`, GitHub Actions builds the API as a Linux native executable with GraalVM 25 using the runner's installed Maven (`mvn -B clean package -Pnative`) and packages it using `api/src/main/docker/Dockerfile.native`. CI uses installed Maven to avoid depending on the wrapper JAR bootstrap download; local development can use the wrapper. The web image uses a Vite build served by OpenResty. Both are published to GHCR with the `latest` tag:
 
@@ -124,6 +124,8 @@ docker compose up -d
 Compose uses `pull_policy: always`, restarts both services automatically, and exposes the API on host port `10301` and the web UI on `10302`.
 
 ## Notes for future agents
+
+- `App.vue` refreshes each integration independently every ten minutes, retains the last successful data on failures, and shows connection status. The clock and calendar use `Europe/Paris`. Calendar date-only values remain all-day dates; the API has already converted exclusive iCalendar end dates to inclusive display dates.
 
 - There is no application authentication or authorization, and API CORS allows all origins. The dashboard exposes data and should be deployed on a trusted network or behind appropriate access controls.
 - This is a public repository. Keep tokens, private calendar URLs, personal photos, and local HTTP request histories out of commits. `.idea/` and `.env` are ignored; ignored IDE files can still contain credentials and are not project documentation.
