@@ -27,7 +27,7 @@ public class HomeAssistantResource {
         String authorization = "Bearer " + config.homeassistant().token();
         int co2Level = Integer.parseInt(homeAssistantClient.getState(authorization, "sensor.awair_2nd_edition_10736_carbon_dioxide").state);
         double indoorTemperature = Double.parseDouble(homeAssistantClient.getState(authorization, "sensor.awair_2nd_edition_10736_temperature").state);
-        double outdoorTemperature = Double.parseDouble(homeAssistantClient.getState(authorization, "sensor.temperature_28").state);
+        double outdoorTemperature = Double.parseDouble(homeAssistantClient.getState(authorization, "sensor.balcony_temperature_sensor_temperature").state);
         String tempoToday = homeAssistantClient.getState(authorization, "sensor.rte_tempo_couleur_actuelle").state;
         String tempoTomorrow = homeAssistantClient.getState(authorization, "sensor.rte_tempo_prochaine_couleur").state;
         return new HomeAssistantData(co2Level, indoorTemperature, outdoorTemperature, tempoToday, tempoTomorrow);
