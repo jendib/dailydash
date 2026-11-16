@@ -9,8 +9,18 @@
       <div class="column conditions-column">
         <section class="panel weather-panel" aria-labelledby="weather-title">
           <div class="panel-heading"><h2 id="weather-title">Outside today</h2><span class="tag"><component :is="currentWeather?.is_day === 1 ? SunIcon : MoonIcon" />{{ currentWeather ? (currentWeather.is_day === 1 ? 'Daytime' : 'Nighttime') : 'Waiting' }}</span></div>
-          <div class="weather-hero"><div><p class="temperature">{{ number(currentWeather?.temperature_2m) }}<span>°</span></p><p class="weather-description">{{ condition.label }}</p></div><WeatherIcon :condition="condition" class="weather-icon" /></div>
-          <div class="weather-details"><span>Wind <strong>{{ number(currentWeather?.wind_speed_10m) }} <small>km/h</small></strong></span><span>Rain <strong>{{ number(currentWeather?.precipitation, 1) }} <small>mm</small></strong></span><span>Balcony <strong>{{ number(homeAssistant?.outdoorTemperature, 1) }}<small> °C</small></strong></span></div>
+          <div class="weather-hero"><div><p class="temperature">{{ number(currentWeather?.temperature_2m) }}<span>°</span></p><p class="weather-description">{{ condition.label }}</p><p class="weather-inline">Wind <strong>{{ number(currentWeather?.wind_speed_10m) }} km/h</strong><span>Balcony <strong>{{ number(homeAssistant?.outdoorTemperature, 1) }}°C</strong></span></p></div><WeatherIcon :condition="condition" class="weather-icon" /></div>
+          <div class="rain-forecast" aria-label="Hourly rain forecast">
+            <span class="rain-caption">Rain<small>mm / hour</small></span>
+            <div v-for="hour in rainForecast" :key="hour.time" class="rain-hour" :class="{ wet: hour.amount > 0, heavy: hour.amount >= 2 }" :title="`${hour.range}: ${rainLabel(hour.amount)}${hour.amount == null ? '' : ' · ' + hour.amount.toFixed(1) + ' mm'}`">
+              <span class="rain-hour-label">{{ hour.label }}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" :aria-label="rainLabel(hour.amount)">
+                <path v-if="hour.amount == null" d="M8 12h8" />
+                <circle v-else-if="hour.amount <= 0" cx="12" cy="12" r="4" />
+                <template v-else><path d="M6 14a4 4 0 1 1 0-8 6 6 0 0 1 11 1 3.5 3.5 0 1 1 1 7Z" /><path d="m12 18-1 3" /><path v-if="hour.amount >= 2" d="m6 18-1 3m13-3-1 3" /></template>
+              </svg></span><strong>{{ number(hour.amount, 1) }}</strong>
+            </div>
+            <span v-if="!rainForecast.length" class="rain-unavailable">Hourly forecast unavailable</span>
+          </div>
           <p v-if="errors.weather" class="status">{{ errors.weather }}</p>
         </section>
 
@@ -54,7 +64,8 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import axios from 'axios'
 import { CalendarDaysIcon, HomeIcon, MapPinIcon, MoonIcon, PhotoIcon, ShoppingBagIcon, SunIcon } from '@heroicons/vue/24/outline'
 import WeatherIcon from './components/WeatherIcon.vue'
-import { formatEventRange, parseEventDate, weatherCondition } from './dashboard.js'
+import { createDeploymentChecker } from './deployment.js'
+import { formatEventRange, hourlyRainForecast, parseEventDate, weatherCondition } from './dashboard.js'
 
 const zone = 'Europe/Paris'
 const now = ref(new Date())
@@ -67,6 +78,9 @@ const errors = reactive({})
 const loaded = reactive({})
 const refreshing = ref(false)
 const currentWeather = computed(() => weather.value?.current)
+const rainForecast = computed(() => hourlyRainForecast(weather.value?.hourly, now.value.getTime()))
+// Compact visual buckets, in mm/hour; exact amounts remain visible below.
+const rainLabel = amount => amount == null ? 'Forecast unavailable' : amount <= 0 ? 'No rain' : amount < 2 ? 'Light rain' : 'Heavier rain'
 const condition = computed(() => weatherCondition(currentWeather.value?.weather_code, currentWeather.value?.is_day))
 const clock = computed(() => now.value.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: zone }))
 const today = computed(() => now.value.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: zone }))
@@ -83,6 +97,8 @@ const photoUrl = id => `${(window.API_URL || '').replace(/\/$/, '')}/photos/${en
 const onPhotoError = event => { event.target.style.visibility = 'hidden' }
 const controller = new AbortController()
 let refreshTimer, clockTimer
+let deploymentTimer
+const checkDeployment = import.meta.env.PROD ? createDeploymentChecker(__APP_VERSION__) : null
 
 async function load() {
   if (refreshing.value) return
@@ -90,7 +106,7 @@ async function load() {
   const sources = [
     ['shopping', 'shopping-list', shoppingList], ['calendar', 'calendar', calendar],
     ['home', 'home-assistant', homeAssistant], ['photos', 'photos/latest', photos],
-    ['weather', 'https://api.open-meteo.com/v1/forecast?latitude=45.7485&longitude=4.8467&current=precipitation,weather_code,temperature_2m,wind_speed_10m,is_day&timezone=Europe%2FParis', weather],
+    ['weather', 'https://api.open-meteo.com/v1/forecast?latitude=45.7485&longitude=4.8467&current=precipitation,weather_code,temperature_2m,wind_speed_10m,is_day&hourly=rain,showers&forecast_days=2&timeformat=unixtime&timezone=Europe%2FParis', weather],
   ]
   await Promise.allSettled(sources.map(async ([key, url, target]) => {
     try {
@@ -106,13 +122,31 @@ async function load() {
 }
 onMounted(() => {
   load()
+  if (checkDeployment) {
+    checkDeployment()
+    deploymentTimer = setInterval(checkDeployment, 60000)
+  }
   refreshTimer = setInterval(load, 600000)
   clockTimer = setInterval(() => { now.value = new Date() }, 1000)
 })
-onUnmounted(() => { clearInterval(refreshTimer); clearInterval(clockTimer); controller.abort() })
+onUnmounted(() => { clearInterval(refreshTimer); clearInterval(clockTimer); clearInterval(deploymentTimer); controller.abort() })
 </script>
 
 <style scoped>
+.weather-inline { display: flex; flex-wrap: wrap; gap: 4px 12px; color: #a6bac5; font-size: 10px; line-height: 18px; margin-top: 2px; }
+.weather-inline strong { color: #dbe7ed; font-weight: 500; }
+.rain-forecast { display: grid; grid-template-columns: 38px repeat(6, minmax(0, 1fr)); gap: 3px; padding-top: 16px; border-top: 1px solid #ffffff12; align-items: center; }
+.rain-caption { color: #c5d6df; font-size: 11px; }
+.rain-caption small { display: block; font-size: 8px; color: #9eb0bc; white-space: nowrap; margin-top: 4px; }
+.rain-hour { text-align: center; font-variant-numeric: tabular-nums; }
+.rain-hour > .rain-hour-label { display: flex; justify-content: center; align-items: center; gap: 2px; color: #a6bac5; font-size: 10px; line-height: 15px; }
+.rain-hour-label svg { width: 12px; height: 12px; flex-shrink: 0; }
+.rain-hour.wet .rain-hour-label svg { color: #8fd1ff; }
+.rain-hour.heavy .rain-hour-label svg { color: #b4a5ff; }
+.rain-hour strong { display: block; color: #b3c4ce; font-size: 14px; line-height: 20px; font-weight: 500; margin-top: 4px; }
+.rain-hour.wet strong { color: #8fd1ff; }
+.rain-unavailable { grid-column: 2 / -1; color: #9eb0bc; font-size: 11px; line-height: 36px; text-align: center; }
+small { font-size: 11px; color: #9eb0bc; font-weight: 400; letter-spacing: 0; }
 .dashboard { min-height: 100dvh; padding: clamp(14px, 1.5vw, 28px); color: #edf1f5; background: radial-gradient(ellipse at 0 0, #203138 0, transparent 45%), #10171d; font-family: 'Segoe UI', system-ui, sans-serif; }
 .masthead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
 .eyebrow { color: #a8bdbe; text-transform: uppercase; letter-spacing: .2em; font-size: 11px; font-weight: 600; margin: 0 0 8px; }
@@ -122,8 +156,8 @@ h1 { font-size: clamp(28px, 2.5vw, 46px); font-weight: 500; letter-spacing: -.04
 .column { display: grid; gap: 16px; } .panel { background: #1b252e; border: 1px solid #ffffff0c; border-radius: 22px; padding: 18px; overflow: hidden; }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; } h2 { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; letter-spacing: -.02em; } h2 svg { width: 20px; height: 20px; color: #acc4bd; flex-shrink: 0; }
 .tag { display: inline-flex; align-items: center; gap: 5px; color: #aebec8; font-size: 11px; white-space: nowrap; } .tag svg { width: 14px; height: 14px; }
-.weather-panel { background: linear-gradient(135deg, #293d47, #20303b); } .weather-hero { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; } .temperature { font-size: clamp(56px, 4.4vw, 84px); letter-spacing: -.07em; font-weight: 300; line-height: 1; } .temperature span { color: #b2c6cd; } .weather-description { color: #ccd9df; margin-top: 10px; font-size: 16px; } .weather-icon { width: 92px; height: 92px; flex-shrink: 0; }
-.weather-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding-top: 20px; border-top: 1px solid #ffffff12; } .weather-details > span { font-size: 11px; color: #a6bac5; } .weather-details strong { display: block; color: #eef3f7; font-size: 17px; font-weight: 500; margin-top: 6px; white-space: nowrap; } small { font-size: 11px; color: #9eb0bc; font-weight: 400; letter-spacing: 0; }
+.weather-panel { background: linear-gradient(135deg, #293d47, #20303b); } .weather-hero { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; } .temperature { font-size: clamp(56px, 4.4vw, 84px); letter-spacing: -.07em; font-weight: 300; line-height: 1; } .temperature span { color: #b2c6cd; } .weather-description { color: #ccd9df; margin-top: 10px; font-size: 16px; } .weather-icon { width: 92px; height: 92px; flex-shrink: 0; }
+
 .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #aad5ab; box-shadow: 0 0 0 4px #aad5ab10; } .live-dot.muted { background: #a7adb3; }
 .home-readings { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } .label { color: #9eafbb; font-size: 11px; } .reading { font-size: 30px; font-weight: 400; letter-spacing: -.04em; margin-top: 7px; white-space: nowrap; } .reading.air-medium { color: #efcc87; } .reading.air-high { color: #ffa292; }
 .tempo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; border-top: 1px solid #ffffff0d; margin-top: 22px; padding-top: 18px; } .tempo-row > div { display: flex; flex-direction: column; gap: 9px; } .tempo { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; } .tempo::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #81929e; } .tempo-blue::before { background: #83b7ff; } .tempo-white::before { background: #eff2f4; } .tempo-red::before { background: #f7938d; }
@@ -151,11 +185,11 @@ h1 { font-size: clamp(28px, 2.5vw, 46px); font-weight: 500; letter-spacing: -.04
   .panel { padding: 14px; border-radius: 18px; }
   .column, .dashboard-grid { gap: 12px; }
   .panel-heading { margin-bottom: 10px; }
-  .weather-hero { margin-bottom: 10px; }
+  .weather-hero { margin-bottom: 0; }
   .temperature { font-size: 48px; }
   .weather-description { margin-top: 4px; }
   .weather-icon { width: 56px; height: 56px; }
-  .weather-details { padding-top: 8px; }
+
   .tempo-row { margin-top: 8px; padding-top: 8px; }
   .tempo-row > div { gap: 5px; }
   .reading { font-size: 24px; margin-top: 3px; }

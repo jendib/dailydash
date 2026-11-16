@@ -1,6 +1,28 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { formatEventRange, weatherCondition } from './dashboard.js'
+import { formatEventRange, hourlyRainForecast, weatherCondition } from './dashboard.js'
+
+test('hourly rain uses the matching accumulation interval, including midnight and missing data', () => {
+  const end = Date.parse('2026-11-16T23:00:00Z') / 1000
+  const hourly = { time: [end - 3600, end, end + 3600], rain: [0, 0.4, null], showers: [0, 0.2, 0] }
+  const result = hourlyRainForecast(hourly, Date.parse('2026-11-16T22:30:00Z'))
+  assert.equal(result.length, 2)
+  assert.equal(result[0].label, '23h')
+  assert.equal(result[0].range, '23:00–00:00')
+  assert.ok(Math.abs(result[0].amount - 0.6) < 0.00001)
+  assert.equal(result[1].label, '00h')
+  assert.equal(result[1].amount, null)
+  assert.equal(hourlyRainForecast(hourly, end * 1000, 1)[0].label, '00h')
+  assert.deepEqual(hourlyRainForecast(null), [])
+})
+
+test('hourly rain stays aligned across daylight saving time and limits the displayed hours', () => {
+  const end = Date.parse('2026-10-25T01:00:00Z') / 1000
+  const result = hourlyRainForecast({ time: [end, end + 3600], rain: [0, 1], showers: [0, 0] }, (end - 1800) * 1000, 1)
+  assert.equal(result.length, 1)
+  assert.equal(result[0].range, '02:00–02:00')
+  assert.equal(result[0].amount, 0)
+})
 
 test('calendar handles inclusive all-day dates and timed ranges in Paris', () => {
   assert.equal(formatEventRange('2026-11-15', '2026-11-15'), '15 Nov · All day')

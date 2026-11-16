@@ -2,6 +2,25 @@ const zone = 'Europe/Paris'
 const dayFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: zone })
 const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: zone })
 
+export function hourlyRainForecast(hourly, now = Date.now(), count = 6) {
+  if (!Array.isArray(hourly?.time)) return []
+  return hourly.time.flatMap((end, index) => {
+    // Open-Meteo hourly accumulations describe the hour ENDING at this timestamp.
+    const endTime = Number(end) * 1000
+    if (!Number.isFinite(endTime) || endTime <= now) return []
+    const start = new Date(endTime - 3600000)
+    const rain = hourly.rain?.[index]
+    const showers = hourly.showers?.[index]
+    const amount = rain == null || showers == null ? null : rain + showers
+    return [{
+      time: endTime,
+      label: `${new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hourCycle: 'h23', timeZone: zone }).format(start)}h`,
+      range: `${timeFormat.format(start)}–${timeFormat.format(new Date(endTime))}`,
+      amount,
+    }]
+  }).slice(0, count)
+}
+
 export function parseEventDate(value) {
   if (!value) return null
   // Date-only values are calendar dates, not UTC instants.

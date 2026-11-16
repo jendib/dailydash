@@ -125,6 +125,8 @@ Compose uses `pull_policy: always`, restarts both services automatically, and ex
 
 ## Notes for future agents
 
+- Production builds emit `/version.json` and embed the same version in the JavaScript bundle. The frontend checks every minute and reloads when a different build is deployed. Failed checks leave the dashboard running. OpenResty serves the version file and HTML without caching; development uses Vite's normal hot reload. Introducing this feature requires one manual refresh of an already-open older dashboard.
+
 - `App.vue` refreshes each integration independently every ten minutes, retains the last successful data on failures, and shows connection status. The clock and calendar use `Europe/Paris`. Calendar date-only values remain all-day dates; the API has already converted exclusive iCalendar end dates to inclusive display dates.
 
 - There is no application authentication or authorization, and API CORS allows all origins. The dashboard exposes data and should be deployed on a trusted network or behind appropriate access controls.

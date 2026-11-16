@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test src/dashboard.test.js"
+    "test": "node --test src/*.test.js"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
